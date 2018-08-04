@@ -9,6 +9,9 @@ var con = mysql.createConnection({
 })
 
 module.exports = {
+    /**
+     * Connect to the database
+     */
     connect: function(callback) {
         con.connect(function(err) {
             if (err) {
@@ -18,6 +21,10 @@ module.exports = {
         })
     },
 
+    /**
+     * Get PacktPub statistics for a given month
+     * @param {number} month Month to filter by
+     */
     getMonthStats: function(month, callback) {
         var totalRows;
         var statsArray = [];
@@ -41,6 +48,10 @@ module.exports = {
         })
     },
 
+    /**
+     * Add a book to the database
+     * @param {Object} book Object with the information to add to the book table
+     */
     addBook: function(book, callback) {
         con.query("INSERT INTO tbl_book SET ?", book, function(err, results) {
             if (err) {

@@ -18,6 +18,15 @@ const options = {
 rp(options)
     .then(($) => {
         var bookTitle = $('#title-bar-title').find('h1').text();
+        var bookObject = {
+            book_title: bookTitle,
+            book_technology: 'Placeholder'
+        }
+
+        db.addBook(bookObject, function(id) {
+            utils.log("Added book: " + bookTitle);
+        })
+
     })
     .catch((err) => {
         utils.log("Error occurred during title crawl")
