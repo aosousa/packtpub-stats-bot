@@ -1,36 +1,32 @@
 // 3rd party packages
 const Telegraf = require('telegraf');
-const rp = require('request-promise');
-const cheerio = require('cheerio');
+const cron = require('cron-job-manager');
 
 // Modules
 const utils = require('./modules/utils');
 const db = require('./modules/db');
+const scrapper = require('./modules/scrapper');
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
-const options = {
-    uri: `https://www.packtpub.com/packt/offers/free-learning`,
-    transform: function(body) {
-        return cheerio.load(body);
-    }
-}
 
-rp(options)
-    .then(($) => {
-        var bookTitle = $('#title-bar-title').find('h1').text();
-        var bookObject = {
-            book_title: bookTitle,
-            book_technology: 'Placeholder'
-        }
+/**
+ * Update database every day at 10:00 AM UTC
+ * Cron Job structure: 
+ * Seconds: 00-59 (replace with * to run every second)
+ * Minutes: 00-59 (replace with * to run every minute)
+ * Hours: 00-23 (replace with * to run every hour)
+ * Day of the month: 01-31 (replace with * to run every day of the month)
+ * Month: 00-11 (replace with * to run every month)
+ * Day of the week: 0-6 (replace with * to run every day of the week)
+ */
+manager = new cron('updateDB', '00 00 10 * * *', function() {
+    scrapper.getBookOfTheDay();
+});
 
-        db.addBook(bookObject, function(id) {
-            utils.log("Added book: " + bookTitle);
-        })
+// Send message every day at 10:01 AM UTC
+manager.add('sendMessage', '00 01 10 * * *', function() {
 
-    })
-    .catch((err) => {
-        utils.log("Error occurred during title crawl")
-    })
+});
 
 // connect to database
 utils.log("Connecting to the database...");
@@ -56,7 +52,15 @@ bot.hears('/stats', (ctx) => {
     });
 });
 
+/*bot.use((ctx, next) => {
+    console.log(ctx.message);
+})*/
+
 // start listening for messages
 bot.startPolling();
-
 utils.log("PacktPub Stats Bot is running");
+
+// start cron job manager
+utils.log("Cron jobs are running");
+manager.start('updateDB');
+manager.start('sendMessage');
