@@ -1,0 +1,35 @@
+{
+  "name": "packtpub-stats-bot",
+  "version": "0.1.0",
+  "description": "Telegram bot that provides statistics on PacktPub's Free Learning eBooks",
+  "main": "main.js",
+  "dependencies": {
+    "cheerio": "^1.0.0-rc.2",
+    "lodash": "^4.17.10",
+    "moment": "^2.22.2",
+    "mysql": "^2.16.0",
+    "npm": "^6.3.0",
+    "request": "^2.87.0",
+    "request-promise": "^4.2.2",
+    "telegraf": "^3.22.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aosousa/packtpub-stats-bot.git"
+  },
+  "keywords": [
+    "nodejs",
+    "telegram",
+    "bot"
+  ],
+  "author": "André Sousa",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/aosousa/packtpub-stats-bot/issues"
+  },
+  "homepage": "https://github.com/aosousa/packtpub-stats-bot#readme"
+}
