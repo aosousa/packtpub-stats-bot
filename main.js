@@ -24,8 +24,17 @@ manager = new cron('updateDB', '00 00 10 * * *', function() {
 });
 
 // Send message every day at 10:01 AM UTC
-manager.add('sendMessage', '00 01 10 * * *', function() {
+manager.add('sendMessage', '* 01 10 * * *', function() {
+    db.getMonthStats(08, 2018, function(stats) {
+        var message = "";
+        stats.forEach(stat => {
+            message += stat.technology + ": " + stat.percentage + "%\n";
+        });
 
+        bot.telegram.sendMessage('-298459952', message).then(function(result) {
+            utils.log("Stats message sent successfully");
+        })
+    });
 });
 
 // connect to database
@@ -43,7 +52,7 @@ bot.start((ctx) => {
 
 // Show stats on the /stats command
 bot.hears('/stats', (ctx) => {
-    db.getMonthStats(8, function(stats) {
+    db.getMonthStats(08, 2018, function(stats) {
         var message = "";
         stats.forEach(stat => {
             message += stat.technology + ": " + stat.percentage + "%\n";
@@ -51,10 +60,6 @@ bot.hears('/stats', (ctx) => {
         ctx.reply(message);
     });
 });
-
-/*bot.use((ctx, next) => {
-    console.log(ctx.message);
-})*/
 
 // start listening for messages
 bot.startPolling();
