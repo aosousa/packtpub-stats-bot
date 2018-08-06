@@ -1,3 +1,7 @@
+//------------------------------------------------------------------------------
+// Utilities module that contains useful re-usable methods
+//------------------------------------------------------------------------------
+
 // Moment.js library
 const moment = require('moment');
 

@@ -1,13 +1,14 @@
 // 3rd party packages
-const Telegraf = require('telegraf');
 const cron = require('cron-job-manager');
+const moment = require('moment');
 
 // Modules
 const utils = require('./modules/utils');
 const db = require('./modules/db');
 const scrapper = require('./modules/scrapper');
+const botModule = require('./modules/bot');
 
-const bot = new Telegraf(process.env.BOT_TOKEN);
+var bot = botModule.getBot();
 
 /**
  * Update database every day at 10:00 AM UTC
@@ -25,40 +26,17 @@ manager = new cron('updateDB', '00 00 10 * * *', function() {
 
 // Send message every day at 10:01 AM UTC
 manager.add('sendMessage', '* 01 10 * * *', function() {
-    db.getMonthStats(08, 2018, function(stats) {
-        var message = "";
-        stats.forEach(stat => {
-            message += stat.technology + ": " + stat.percentage + "%\n";
-        });
-
+    botModule.sendCurrentMonthStats(function (message) {
         bot.telegram.sendMessage('-298459952', message).then(function(result) {
             utils.log("Stats message sent successfully");
         })
-    });
+    })
 });
 
 // connect to database
 utils.log("Connecting to the database...");
 db.connect(function(err) {
     utils.log("Connected to the database!");
-});
-
-// Show welcome message on start command
-bot.start((ctx) => {
-    ctx.reply('Welcome!')
-});
-
-// Show help message for commands
-
-// Show stats on the /stats command
-bot.hears('/stats', (ctx) => {
-    db.getMonthStats(08, 2018, function(stats) {
-        var message = "";
-        stats.forEach(stat => {
-            message += stat.technology + ": " + stat.percentage + "%\n";
-        });
-        ctx.reply(message);
-    });
 });
 
 // start listening for messages

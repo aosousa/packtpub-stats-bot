@@ -1,3 +1,8 @@
+//------------------------------------------------------------------------------
+// Database module that handles the connection to the database and performs the
+// required queries to obtain the information requested by the user.
+//------------------------------------------------------------------------------
+
 // 3rd party packages
 const mysql = require('mysql');
 const _ = require('lodash');

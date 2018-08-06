@@ -1,3 +1,8 @@
+//------------------------------------------------------------------------------
+// Web scrapper module that obtains the information of the free eBook of the day
+// on PacktPub and saves it to the database.
+//------------------------------------------------------------------------------
+
 // 3rd party packages
 const rp = require('request-promise');
 const cheerio = require('cheerio');
