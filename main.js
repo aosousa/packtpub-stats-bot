@@ -1,6 +1,5 @@
 // 3rd party packages
 const cron = require('cron-job-manager');
-const moment = require('moment');
 
 // Modules
 const utils = require('./modules/utils');

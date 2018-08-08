@@ -51,7 +51,42 @@ module.exports = {
             days = result.length;
         })
 
-        con.query(`SELECT book_technology, COUNT(*) AS count FROM tbl_book WHERE book_date BETWEEN ${startDate} AND ${endDate} GROUP BY book_technology `, function(err, result) {
+        con.query(`SELECT book_technology, COUNT(*) AS count FROM tbl_book WHERE book_date BETWEEN ${startDate} AND ${endDate} GROUP BY book_technology ORDER BY count DESC`, function(err, result) {
+            if (err) {
+                throw err;
+            }
+            
+            result.forEach(el => {
+                var pct = _.round((el.count / days) * 100, 1);
+                var statObject = {
+                    technology: el.book_technology,
+                    percentage: pct
+                }
+                statsArray.push(statObject);
+            });
+            return callback(statsArray);
+        })
+    },
+
+    /**
+     * Get PacktPub statistics for a given year
+     * @param {number} year Year to filter by
+     */
+    getYearStats: function(year, callback) {
+        var statsArray = [];
+        var days;
+        var startDate = `'${year}-01-01'`;
+        var endDate = `'${year}-12-31'`;
+
+        con.query(`SELECT * FROM tbl_book WHERE book_date BETWEEN ${startDate} AND ${endDate}`, function(err, result) {
+            if (err) {
+                throw err;
+            }
+            
+            days = result.length;
+        });
+
+        con.query(`SELECT book_technology, COUNT(*) AS count FROM tbl_book WHERE book_date BETWEEN ${startDate} AND ${endDate} GROUP BY book_technology ORDER BY count DESC`, function(err, result) {
             if (err) {
                 throw err;
             }
