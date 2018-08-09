@@ -37,35 +37,13 @@ module.exports = {
      */
     getMonthStats: function(month, year, callback) {
         var daysInMonth = utils.getDaysInMonth(month, year);
-        var statsArray = [];
-        var days;
 
         var startDate = `'${year}-${month}-01'`;
         var endDate = `'${year}-${month}-${daysInMonth}'`;
 
-        con.query(`SELECT * FROM tbl_book WHERE book_date BETWEEN ${startDate} AND ${endDate}`, function(err, result) {
-            if (err) {
-                throw err;
-            }
-
-            days = result.length;
-        })
-
-        con.query(`SELECT book_technology, COUNT(*) AS count FROM tbl_book WHERE book_date BETWEEN ${startDate} AND ${endDate} GROUP BY book_technology ORDER BY count DESC`, function(err, result) {
-            if (err) {
-                throw err;
-            }
-            
-            result.forEach(el => {
-                var pct = _.round((el.count / days) * 100, 1);
-                var statObject = {
-                    technology: el.book_technology,
-                    percentage: pct
-                }
-                statsArray.push(statObject);
-            });
-            return callback(statsArray);
-        })
+        this.getBookStats(startDate, endDate, function(stats) {
+            return callback(stats);
+        });
     },
 
     /**
@@ -73,10 +51,40 @@ module.exports = {
      * @param {number} year Year to filter by
      */
     getYearStats: function(year, callback) {
-        var statsArray = [];
-        var days;
         var startDate = `'${year}-01-01'`;
         var endDate = `'${year}-12-31'`;
+
+        this.getBookStats(startDate, endDate, function(stats) {
+            return callback(stats);
+        });
+    },
+
+    /**
+     * Get PacktPub statistics from a certain range of months (e.g. August 2018 - September 2018)
+     * @param {number} startMonth Month to start filtering by
+     * @param {number} startYear Year to start filtering by
+     * @param {number} endMonth Month to end filtering by
+     * @param {number} endYear Year to end filtering by
+     */
+    getStatsInRange: function(startMonth, startYear, endMonth, endYear, callback) {
+        var daysInEndMonth = utils.getDaysInMonth(endMonth, endYear);
+
+        var startDate = `'${startYear}-${startMonth}-01'`;
+        var endDate = `'${endYear}-${endMonth}-${daysInEndMonth}'`;
+
+        this.getBookStats(startDate, endDate, function(stats) {
+            return callback(stats);
+        });
+    },
+
+    /**
+     * Get PacktPub stats from a certain date range
+     * @param {string} startDate Date to start filtering by
+     * @param {string} endDate Date to end filtering by
+     */
+    getBookStats: function(startDate, endDate, callback) {
+        var statsArray = [];
+        var days;
 
         con.query(`SELECT * FROM tbl_book WHERE book_date BETWEEN ${startDate} AND ${endDate}`, function(err, result) {
             if (err) {

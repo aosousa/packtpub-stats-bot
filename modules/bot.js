@@ -31,7 +31,9 @@ bot.start((ctx) => {
 });
 
 // Show help message for commands
-// ...
+bot.help((ctx) => {
+    ctx.reply("PacktPub Stats Bot\n")
+})
 
 // Listen for different commands
 bot.use((ctx, next) => {
@@ -118,6 +120,37 @@ bot.use((ctx, next) => {
                     }
                     else {
                         message = `No results found for ${splitMsg[1]} ${splitMsg[2]}`;
+                    }
+                    ctx.reply(message);
+                });
+            }
+            // /stats <month> <year> <-> <month> <year> command - show stats for that month and year (e.g. /stats August 2018 - September 2018)
+            else if (splitMsg.length == 6) {
+                var startMonthNum = months.indexOf(splitMsg[1]);
+                var startYear = splitMsg[2];
+
+                var endMonthNum = months.indexOf(splitMsg[4]);
+                var endYear = splitMsg[5];
+
+                if (startMonthNum == -1 || endMonthNum == -1) {
+                    ctx.reply("ERROR: Invalid month.");
+                    return;
+                }
+
+                if (isNaN(startYear) || isNaN(endYear)) {
+                    ctx.reply("ERROR: Year must be a number.");
+                    return;
+                }
+
+                db.getStatsInRange(startMonthNum + 1, startYear, endMonthNum + 1, endYear, function(stats) {
+                    var message = `PacktPub stats from ${splitMsg[1]} ${splitMsg[2]} to ${splitMsg[4]} ${splitMsg[5]}:\n`;
+                    if (stats.length > 0) {
+                        stats.forEach(stat => {
+                            message += `* ${stat.technology}: ${stat.percentage}%\n`;
+                        });
+                    }
+                    else {
+                        message = `No results found from ${splitMsg[1]} ${splitMsg[2]} to ${splitMsg[4]} ${splitMsg[5]}`;
                     }
                     ctx.reply(message);
                 });
