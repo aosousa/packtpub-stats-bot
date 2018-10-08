@@ -9,7 +9,10 @@ const moment = require('moment');
 // Modules
 const db = require('./db');
 
-const bot = new Telegraf(process.env.BOT_TOKEN);
+// Config
+const config = require('../config.json');
+
+const bot = new Telegraf(config.bot.token);
 
 var months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
@@ -21,6 +24,21 @@ var getCurrentMonthStats = function(callback) {
         stats.forEach(stat => {
             message += `* ${stat.technology}: ${stat.percentage}%\n`;
         });
+        callback(message);
+    });
+}
+
+var getBookOccurrences = function(callback) {
+    db.bookIsNew(function(book) {
+        var message;
+        
+        if (book.occurrences === 1) {
+            message = `Book "${book.title}" is new!`;
+        }
+        else {
+            message = `Book "${book.title}" is not new! Number of appearances: ${book.occurrences}`;
+        }
+
         callback(message);
     });
 }
@@ -40,10 +58,11 @@ bot.use((ctx, next) => {
     var message = ctx.message.text;
     var splitMsg = message.split(" ");
 
-    // /stats (or /graph ?) command
+    // /stats (or /graph ?) or isnew command
     if (splitMsg.length == 1) {
         // /stats command without any other option - show stats for the current month
         if (splitMsg[0] == "/stats") {
+
             getCurrentMonthStats(function(message) {
                 ctx.reply(message);
             });
@@ -51,6 +70,12 @@ bot.use((ctx, next) => {
         // /graph command without any other option - show graph for the current month
         else if (splitMsg[0] == "/graph") {
             ctx.reply("test")
+        }
+        // /isnew - check if the latest book added to the database is a new one
+        else if (splitMsg[0] == "/isnew") {
+            getBookOccurrences(function(message) {
+                ctx.reply(message);
+            });
         }
         // otherwise show error + help message
         else {
@@ -158,7 +183,7 @@ bot.use((ctx, next) => {
         }
         // handle /graph commands
         else if (splitMsg[0] == "/graph") {
-
+            
         }
         // otherwise show error + help message
         else {
@@ -183,5 +208,9 @@ module.exports = {
      */
     sendCurrentMonthStats: function(callback) {
         return getCurrentMonthStats(callback);
+    },
+
+    sendBookOccurrences: function(callback) {
+        return getBookOccurrences(callback);
     }
 }

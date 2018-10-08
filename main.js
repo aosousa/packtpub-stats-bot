@@ -23,13 +23,21 @@ manager = new cron('updateDB', '00 00 10 * * *', function() {
     scrapper.getBookOfTheDay();
 });
 
-// Send message every day at 10:01 AM UTC
-manager.add('sendMessage', '* 01 10 * * *', function() {
+// Send both stats and isnew message every day at 10:01 AM UTC
+manager.add('sendMessage', '00 01 10 * * *', function() {
+    // stats message
     botModule.sendCurrentMonthStats(function (message) {
         bot.telegram.sendMessage('-298459952', message).then(function(result) {
             utils.log("Stats message sent successfully");
-        })
-    })
+        });
+    });
+
+    // isnew message
+    botModule.sendBookOccurrences(function (message) {
+        bot.telegram.sendMessage('-298459952', message).then(function(result) {
+            utils.log("Is new book message sent successfully");
+        });
+    });
 });
 
 // connect to database

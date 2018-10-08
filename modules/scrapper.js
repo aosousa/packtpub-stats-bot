@@ -30,7 +30,7 @@ module.exports = {
 
                 db.addBook(bookObject, function(id) {
                     utils.log("Added book: " + bookTitle);
-                })
+                });
             })
             .catch((err) => {
                 utils.log("Error occurred while obtaining information of the book of the day")

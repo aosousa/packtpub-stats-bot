@@ -10,11 +10,14 @@ const _ = require('lodash');
 // Modules
 const utils = require('./utils');
 
+// Config
+const config = require('../config.json');
+
 var con = mysql.createConnection({
-    host: '', // IP of the server where the database is hosted
-    user: '', // username to access database
-    password: '', // password for the user above
-    database: '' // database name
+    host: config.db.host, // IP of the server where the database is hosted
+    user: config.db.user, // username to access database
+    password: config.db.password, // password for the user above
+    database: config.db.database // database name
 })
 
 module.exports = {
@@ -122,5 +125,30 @@ module.exports = {
             }
             return callback(results.insertId);
         })
+    },
+
+    /**
+     * Check if the latest book inserted in the database is a new one or not
+     */
+    bookIsNew: function(callback) {
+        // get last inserted row
+        con.query("SELECT * FROM tbl_book ORDER BY book_id DESC LIMIT 1", function(err, result) {
+            if (err) {
+                throw err;
+            }
+            // get rows with the same title
+            con.query(`SELECT * FROM tbl_book WHERE book_title = '${result[0].book_title}'`, function(err, results) {
+                if (err) {
+                    throw err;
+                }
+
+                var book = {
+                    title: results[0].book_title,
+                    occurrences: results.length
+                };
+                
+                return callback(book);
+            })
+        });
     }
 }
